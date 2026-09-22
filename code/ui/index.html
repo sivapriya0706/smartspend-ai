@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartSpend AI</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <div>
+        <p class="product">SmartSpend AI</p>
+        <p class="tag">A safer way to decide before you spend</p>
+      </div>
+    </div>
+    <nav class="journey" aria-label="Your SmartSpend journey">
+      <button type="button" data-nav="home">Check</button>
+      <button type="button" data-nav="decision" disabled>Result</button>
+      <button type="button" data-nav="whatif" disabled>What-if</button>
+    </nav>
+    <p class="live" id="live-status">Live 90-day forecast</p>
+  </header>
+
+  <main id="main">
+    <section id="view-home" class="view">
+      <p class="kicker">Before you spend</p>
+      <h1>Make a money decision you’ll feel good about.</h1>
+      <p class="lede">SmartSpend checks the purchase against your balance, buffer, essential expenses, upcoming income and available payment plans.</p>
+
+      <form id="check-form" class="panel form-panel" novalidate>
+        <fieldset>
+          <legend>Purchase</legend>
+          <div class="grid-2">
+            <div class="field">
+              <label for="amount">Purchase amount</label>
+              <div class="amount-wrap">
+                <span class="prefix">₹</span>
+                <input id="amount" name="amount" inputmode="decimal" autocomplete="off" required>
+              </div>
+            </div>
+            <div class="field">
+              <label for="purpose">What is it for?</label>
+              <input id="purpose" maxlength="180" required placeholder="Laptop, course, family transfer…" autocomplete="off" aria-autocomplete="none">
+            </div>
+          </div>
+          <div class="field">
+            <label for="purchase-date">When do you want to buy it?</label>
+            <input id="purchase-date" type="date" required>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Current money</legend>
+          <div class="grid-3">
+            <div class="field">
+              <label for="current-balance">Money you have now</label>
+              <input id="current-balance" inputmode="decimal" autocomplete="off" required>
+              <p class="hint">Your current available balance.</p>
+            </div>
+            <div class="field">
+              <label for="minimum-balance">Minimum money you need to keep</label>
+              <input id="minimum-balance" inputmode="decimal" autocomplete="off" required>
+              <p class="hint">Buffer amount you never want to dip below.</p>
+            </div>
+            <div class="field">
+              <label for="essential-expenses">Essential monthly expenses</label>
+              <input id="essential-expenses" inputmode="decimal" autocomplete="off" required>
+              <p class="hint">Regular expenses you need to pay every month.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Upcoming money</legend>
+          <div class="grid-2">
+            <div class="field">
+              <label for="next-income">Next income</label>
+              <input id="next-income" inputmode="decimal" autocomplete="off">
+              <p class="hint">Money you expect to receive next.</p>
+            </div>
+            <div class="field">
+              <label for="next-income-date">Next income date</label>
+              <input id="next-income-date" type="date">
+              <p class="hint">When you expect that money to arrive.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>How do you want to pay?</legend>
+          <div class="payment-options" role="radiogroup" aria-label="Payment preference">
+            <label class="payment-option">
+              <input type="radio" name="payment-preference" value="full_payment" checked>
+              <span><strong>Pay everything now</strong><small>Check the full amount today.</small></span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-preference" value="partial_payment">
+              <span><strong>Pay part now</strong><small>Choose what to pay today.</small></span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-preference" value="installments">
+              <span><strong>Use installments</strong><small>Use an available payment plan.</small></span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment-preference" value="auto">
+              <span><strong>Let SmartSpend decide</strong><small>Use the safest supported option.</small></span>
+            </label>
+          </div>
+          <div id="partial-payment-field" class="field inline-field" hidden>
+            <label for="partial-amount">How much do you want to pay now?</label>
+            <div class="amount-wrap">
+              <span class="prefix">₹</span>
+              <input id="partial-amount" inputmode="decimal" autocomplete="off">
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn primary cta" id="check-btn">Check Purchase <span aria-hidden="true">→</span></button>
+        <p class="error" id="form-error" hidden></p>
+      </form>
+    </section>
+
+    <section id="view-decision" class="view" hidden>
+      <button type="button" class="text-link" data-go="home">← Change details</button>
+      <article class="decision-hero" id="decision-card">
+        <p class="kicker">Your SmartSpend result</p>
+        <p class="status-pill" id="decision-eyebrow">—</p>
+        <h1 id="decision-title">—</h1>
+        <p class="safe-label">Safe spending amount right now</p>
+        <p class="safe-figure" id="decision-safe">—</p>
+        <p class="reco">Recommended payment <strong id="decision-method">—</strong></p>
+        <p class="explain" id="decision-explain">—</p>
+        <div id="actionable" class="actionable" hidden>
+          <h2>Here’s how you can make it possible</h2>
+          <ul id="actionable-list"></ul>
+        </div>
+        <dl class="facts" id="decision-facts"></dl>
+        <div class="actions">
+          <button type="button" class="btn primary" id="explore-btn">What if I change my plan?</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="view-whatif" class="view" hidden>
+      <button type="button" class="text-link" data-go="decision">← Back to result</button>
+      <p class="kicker">Your SmartSpend plan</p>
+      <h1>What if I change my plan?</h1>
+      <p class="lede">Choose one or more changes. SmartSpend will evaluate them together.</p>
+
+      <div class="sim panel">
+        <fieldset>
+          <legend>Changes to try</legend>
+          <div class="change-options">
+            <label class="change-option">
+              <input type="checkbox" value="spend_less" data-change>
+              <span><strong>Spend less</strong><small>Reduce flexible spending.</small></span>
+            </label>
+            <label class="change-option">
+              <input type="checkbox" value="use_savings" data-change>
+              <span><strong>Use savings</strong><small>Use part of your safety buffer.</small></span>
+            </label>
+            <label class="change-option">
+              <input type="checkbox" value="wait_income" data-change>
+              <span><strong>Wait for income</strong><small>Buy after money arrives.</small></span>
+            </label>
+            <label class="change-option">
+              <input type="checkbox" value="pay_part_now" data-change>
+              <span><strong>Pay part now</strong><small>Pay the rest later.</small></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div id="whatif-spend-less" class="knob" hidden>
+          <label for="reduce-level">How much flexible spending would you reduce?</label>
+          <input id="reduce-level" type="range" min="10" max="100" value="70" step="5">
+          <p class="knob-value"><span id="reduce-readout">70%</span></p>
+        </div>
+        <div id="whatif-savings" class="knob" hidden>
+          <label for="savings-amount">How much savings do you want to use?</label>
+          <div class="amount-wrap"><span class="prefix">₹</span><input id="savings-amount" inputmode="decimal" autocomplete="off"></div>
+        </div>
+        <div id="whatif-wait" class="knob" hidden>
+          <label for="wait-date">When should the income have arrived?</label>
+          <input id="wait-date" type="date">
+        </div>
+        <div id="whatif-partial" class="knob" hidden>
+          <label for="whatif-partial-amount">How much do you want to pay now?</label>
+          <div class="amount-wrap"><span class="prefix">₹</span><input id="whatif-partial-amount" inputmode="decimal" autocomplete="off"></div>
+        </div>
+
+        <button type="button" class="btn primary" id="recalc-btn">Check My New Plan</button>
+        <p class="error" id="whatif-error" hidden></p>
+      </div>
+
+      <div class="before-after" id="before-after" hidden>
+        <div class="ba before">
+          <p class="kicker">Before</p>
+          <p class="status-pill" id="before-status">—</p>
+          <p id="before-safe">—</p>
+          <p id="before-method">—</p>
+        </div>
+        <div class="ba arrow" aria-hidden="true">→</div>
+        <div class="ba after" id="whatif-card">
+          <p class="kicker">New plan</p>
+          <p class="status-pill" id="whatif-eyebrow">—</p>
+          <h2 id="whatif-title">—</h2>
+          <p id="after-safe">—</p>
+          <p id="after-method">—</p>
+          <p id="after-date">—</p>
+          <p id="after-changes">—</p>
+          <p class="explain" id="whatif-explain">—</p>
+          <ul id="whatif-actions" class="action-list"></ul>
+        </div>
+      </div>
+      <div class="actions plan-actions">
+        <button type="button" class="btn ghost" data-go="home">Back to Check Purchase</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="busy" id="busy" hidden role="status" aria-live="polite">Checking the 90-day forecast…</div>
+  <script src="/app.js"></script>
+</body>
+</html>
