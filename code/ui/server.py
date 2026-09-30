@@ -165,6 +165,8 @@ def build_request(body: dict) -> dict[str, str]:
 
 
 def input_overrides(body: dict, request: dict[str, str]) -> dict[str, str]:
+    if body.get("connected_account"):
+        return {}
     overrides: dict[str, str] = {}
     if body.get("current_balance") not in (None, ""):
         overrides["current_available_balance"] = money(decimal_value(body["current_balance"], "Money you have now"))
@@ -244,19 +246,20 @@ def user_inputs(body: dict, request: dict[str, str]):
             {**option, "first_payment_date": (day(option["first_payment_date"]) + option_shift).isoformat()}
             for option in original_options
         ]
-        extra = user_events(body, request)
-        if extra:
-            # A manually entered next income is authoritative for this check;
-            # avoid counting a template salary on the same forecast dates.
-            has_manual_income = body.get("next_income") not in (None, "") and body.get("next_income_date")
-            solver.events_by_user[user_id] = [
-                event for event in original_events
-                if not (
-                    has_manual_income
-                    and event["category"] == "salary"
-                    and day(event["settlement_date"] or event["event_date"]) >= day(request["request_date"])
-                )
-            ] + extra
+        if not body.get("connected_account"):
+            extra = user_events(body, request)
+            if extra:
+                # A manually entered next income is authoritative for this check;
+                # avoid counting a template salary on the same forecast dates.
+                has_manual_income = body.get("next_income") not in (None, "") and body.get("next_income_date")
+                solver.events_by_user[user_id] = [
+                    event for event in original_events
+                    if not (
+                        has_manual_income
+                        and event["category"] == "salary"
+                        and day(event["settlement_date"] or event["event_date"]) >= day(request["request_date"])
+                    )
+                ] + extra
         yield overrides
     finally:
         solver.profiles[user_id].clear()
@@ -547,6 +550,66 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/situations":
             try:
                 json_response(self, {"situations": load_situations()})
+            except RuntimeError as exc:
+                json_response(self, {"error": str(exc)}, 503)
+            return
+        if path == "/api/demo-profile":
+            # Returns financial data from the first sample request user in the
+            # existing dataset.  Nothing is invented; this is a read-only
+            # view of the real dataset for the demo account connect flow.
+            try:
+                s = require_solver()
+                rows = template_rows()
+                if not rows:
+                    raise RuntimeError("no sample requests in dataset")
+                row = rows[0]
+                user_id = row["user_id"]
+                profile = s.profiles[user_id]
+                # Derive a representative essential-expenses figure from the
+                # user's event history (average of protected debit categories).
+                events = s.events_by_user.get(user_id, [])
+                essential_cats = {c.strip() for c in profile.get("expense_categories_to_protect", "").split("|") if c.strip()}
+                monthly_debits: list[Decimal] = []
+                for ev in events:
+                    if ev.get("direction") == "debit" and ev.get("category") in essential_cats:
+                        try:
+                            monthly_debits.append(Decimal(str(ev.get("amount") or "0").replace(",", "").strip() or "0"))
+                        except Exception:
+                            pass
+                if monthly_debits:
+                    avg_essential = sum(monthly_debits) / len(monthly_debits)
+                    avg_essential = avg_essential.quantize(Decimal("0.01"))
+                else:
+                    # Graceful fallback: 30% of minimum balance as a conservative estimate
+                    avg_essential = (Decimal(profile["minimum_balance_to_keep"]) * Decimal("0.30")).quantize(Decimal("0.01"))
+                # Next salary from events
+                request_date = row["request_date"]
+                salary_events = sorted(
+                    [ev for ev in events if ev.get("category") == "salary" and ev.get("direction") == "credit"],
+                    key=lambda ev: ev.get("settlement_date") or ev.get("event_date") or "",
+                )
+                next_salary = None
+                next_salary_date_str = ""
+                for ev in salary_events:
+                    ev_date = ev.get("settlement_date") or ev.get("event_date") or ""
+                    if ev_date >= request_date:
+                        try:
+                            next_salary = str(Decimal(str(ev.get("amount") or "0").replace(",", "")))
+                            next_salary_date_str = ev_date
+                        except Exception:
+                            pass
+                        break
+                json_response(self, {
+                    "user_id": user_id,
+                    "home_currency": profile["home_currency"],
+                    "current_balance": profile["current_available_balance"],
+                    "minimum_balance": profile["minimum_balance_to_keep"],
+                    "essential_expenses": str(avg_essential),
+                    "next_income": next_salary or "",
+                    "next_income_date": next_salary_date_str,
+                    "request_id": row["request_id"],
+                    "request_date": request_date,
+                })
             except RuntimeError as exc:
                 json_response(self, {"error": str(exc)}, 503)
             return

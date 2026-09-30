@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SmartSpend AI</title>
+  <meta name="description" content="SmartSpend AI analyses your financial situation and automatically recommends the safest way to pay for your purchase.">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -27,8 +28,25 @@
   <main id="main">
     <section id="view-home" class="view">
       <p class="kicker">Before you spend</p>
-      <h1>Make a money decision you’ll feel good about.</h1>
-      <p class="lede">SmartSpend checks the purchase against your balance, buffer, essential expenses, upcoming income and available payment plans.</p>
+      <h1>Make a money decision you'll feel good about.</h1>
+      <p class="lede">SmartSpend checks the purchase against your balance, buffer, essential expenses, upcoming income and available payment plans — then tells you exactly what to do.</p>
+
+      <!-- Demo account connect banner -->
+      <div class="account-banner" id="account-banner">
+        <div class="account-banner-inner">
+          <div class="account-connected" id="account-connected" hidden>
+            <span class="account-dot" aria-hidden="true"></span>
+            <span id="account-label">Account connected</span>
+            <button type="button" class="disconnect-btn" id="disconnect-btn">Disconnect</button>
+          </div>
+          <div id="connect-area">
+            <button type="button" class="btn connect-btn" id="connect-btn">
+              <span aria-hidden="true">⚡</span> Connect Account
+            </button>
+            <span class="connect-hint">Loads your financial data automatically.</span>
+          </div>
+        </div>
+      </div>
 
       <form id="check-form" class="panel form-panel" novalidate>
         <fieldset>
@@ -37,7 +55,7 @@
             <div class="field">
               <label for="amount">Purchase amount</label>
               <div class="amount-wrap">
-                <span class="prefix">₹</span>
+                <span class="prefix" id="currency-prefix">₹</span>
                 <input id="amount" name="amount" inputmode="decimal" autocomplete="off" required>
               </div>
             </div>
@@ -52,71 +70,51 @@
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>Current money</legend>
-          <div class="grid-3">
-            <div class="field">
-              <label for="current-balance">Money you have now</label>
-              <input id="current-balance" inputmode="decimal" autocomplete="off" required>
-              <p class="hint">Your current available balance.</p>
-            </div>
-            <div class="field">
-              <label for="minimum-balance">Minimum money you need to keep</label>
-              <input id="minimum-balance" inputmode="decimal" autocomplete="off" required>
-              <p class="hint">Buffer amount you never want to dip below.</p>
-            </div>
-            <div class="field">
-              <label for="essential-expenses">Essential monthly expenses</label>
-              <input id="essential-expenses" inputmode="decimal" autocomplete="off" required>
-              <p class="hint">Regular expenses you need to pay every month.</p>
-            </div>
-          </div>
-        </fieldset>
+        <!-- Connected account summary (visible when demo is connected) -->
+        <div id="connected-summary" class="connected-summary" hidden>
+          <p class="connected-summary-title">Financial data from connected account</p>
+          <div class="connected-facts" id="connected-facts"></div>
+        </div>
 
-        <fieldset>
-          <legend>Upcoming money</legend>
-          <div class="grid-2">
-            <div class="field">
-              <label for="next-income">Next income</label>
-              <input id="next-income" inputmode="decimal" autocomplete="off">
-              <p class="hint">Money you expect to receive next.</p>
+        <!-- Manual financial fields (visible when no account is connected) -->
+        <div id="manual-financial">
+          <fieldset>
+            <legend>Current money</legend>
+            <div class="grid-3">
+              <div class="field">
+                <label for="current-balance">Money you have now</label>
+                <input id="current-balance" inputmode="decimal" autocomplete="off" required>
+                <p class="hint">Your current available balance.</p>
+              </div>
+              <div class="field">
+                <label for="minimum-balance">Minimum money you need to keep</label>
+                <input id="minimum-balance" inputmode="decimal" autocomplete="off" required>
+                <p class="hint">Buffer amount you never want to dip below.</p>
+              </div>
+              <div class="field">
+                <label for="essential-expenses">Essential monthly expenses</label>
+                <input id="essential-expenses" inputmode="decimal" autocomplete="off" required>
+                <p class="hint">Regular expenses you need to pay every month.</p>
+              </div>
             </div>
-            <div class="field">
-              <label for="next-income-date">Next income date</label>
-              <input id="next-income-date" type="date">
-              <p class="hint">When you expect that money to arrive.</p>
-            </div>
-          </div>
-        </fieldset>
+          </fieldset>
 
-        <fieldset>
-          <legend>How do you want to pay?</legend>
-          <div class="payment-options" role="radiogroup" aria-label="Payment preference">
-            <label class="payment-option">
-              <input type="radio" name="payment-preference" value="full_payment" checked>
-              <span><strong>Pay everything now</strong><small>Check the full amount today.</small></span>
-            </label>
-            <label class="payment-option">
-              <input type="radio" name="payment-preference" value="partial_payment">
-              <span><strong>Pay part now</strong><small>Choose what to pay today.</small></span>
-            </label>
-            <label class="payment-option">
-              <input type="radio" name="payment-preference" value="installments">
-              <span><strong>Use installments</strong><small>Use an available payment plan.</small></span>
-            </label>
-            <label class="payment-option">
-              <input type="radio" name="payment-preference" value="auto">
-              <span><strong>Let SmartSpend decide</strong><small>Use the safest supported option.</small></span>
-            </label>
-          </div>
-          <div id="partial-payment-field" class="field inline-field" hidden>
-            <label for="partial-amount">How much do you want to pay now?</label>
-            <div class="amount-wrap">
-              <span class="prefix">₹</span>
-              <input id="partial-amount" inputmode="decimal" autocomplete="off">
+          <fieldset>
+            <legend>Upcoming money</legend>
+            <div class="grid-2">
+              <div class="field">
+                <label for="next-income">Next income</label>
+                <input id="next-income" inputmode="decimal" autocomplete="off">
+                <p class="hint">Money you expect to receive next.</p>
+              </div>
+              <div class="field">
+                <label for="next-income-date">Next income date</label>
+                <input id="next-income-date" type="date">
+                <p class="hint">When you expect that money to arrive.</p>
+              </div>
             </div>
-          </div>
-        </fieldset>
+          </fieldset>
+        </div>
 
         <button type="submit" class="btn primary cta" id="check-btn">Check Purchase <span aria-hidden="true">→</span></button>
         <p class="error" id="form-error" hidden></p>
@@ -131,10 +129,10 @@
         <h1 id="decision-title">—</h1>
         <p class="safe-label">Safe spending amount right now</p>
         <p class="safe-figure" id="decision-safe">—</p>
-        <p class="reco">Recommended payment <strong id="decision-method">—</strong></p>
+        <p class="reco">Recommended action: <strong id="decision-method">—</strong></p>
         <p class="explain" id="decision-explain">—</p>
         <div id="actionable" class="actionable" hidden>
-          <h2>Here’s how you can make it possible</h2>
+          <h2>Here's how you can make it possible</h2>
           <ul id="actionable-list"></ul>
         </div>
         <dl class="facts" id="decision-facts"></dl>

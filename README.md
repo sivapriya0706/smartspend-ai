@@ -191,3 +191,11 @@ Before submitting, confirm:
 - Every `amount_safe_to_pay` satisfies `0 <= amount_safe_to_pay <= requested_amount`.
 - Every installment plan matches a supplied payment option, and every spending change targets a flexible recurring expense.
 - Your runnable code, setup instructions, and `evaluation/` folder are included in `code.zip`.
+## How to Run
+
+1. Open the project folder in VS Code.
+2. Open the terminal in the project folder.
+3. Run:
+
+```bash
+python code\ui\server.py

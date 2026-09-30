@@ -1207,3 +1207,136 @@ legend {
     grid-template-columns: 1fr;
   }
 }
+
+/* ACCOUNT BANNER */
+
+.account-banner {
+  margin-top: 32px;
+}
+
+.account-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 11px 20px;
+
+  background: var(--blue-soft);
+
+  border: 1px solid var(--blue-line);
+
+  border-radius: 12px;
+
+  color: var(--blue-light);
+
+  font-size: 0.9rem;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.connect-btn:hover {
+  background: rgba(40, 124, 255, 0.2);
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.connect-hint {
+  color: var(--muted-2);
+  font-size: 0.8rem;
+}
+
+/* Connected state pill */
+
+.account-connected {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid rgba(50, 213, 131, 0.28);
+  border-radius: 999px;
+  background: rgba(50, 213, 131, 0.07);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.account-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(50, 213, 131, 0.6);
+  flex-shrink: 0;
+}
+
+.disconnect-btn {
+  background: none;
+  border: none;
+  color: var(--muted-2);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 0 0 4px;
+  transition: color 0.15s ease;
+}
+
+.disconnect-btn:hover {
+  color: var(--red);
+}
+
+/* Connected-account summary panel (inside form) */
+
+.connected-summary {
+  padding: 18px 22px;
+  background: rgba(50, 213, 131, 0.05);
+  border: 1px solid rgba(50, 213, 131, 0.18);
+  border-radius: 14px;
+}
+
+.connected-summary-title {
+  margin: 0 0 12px;
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.connected-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+}
+
+.cf-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cf-label {
+  color: var(--muted-2);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cf-value {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
