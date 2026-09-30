@@ -1,4 +1,4 @@
-# HackerRank Orchestrate
+# SMART SPEND
 
 Starter repository for the **HackerRank Orchestrate** 24-hour hackathon (September 2026).
 
