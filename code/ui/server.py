@@ -660,7 +660,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def main() -> int:
-    port = 8765
+    import os
+    port = int(os.environ.get("PORT", "8765"))
     server = ThreadingHTTPServer(("0.0.0.0", port), Handler)
     print(f"SmartSpend AI: http://0.0.0.0:{port}/", flush=True)
     print("Frozen solver imported from code/main.py. output.csv is not written.", flush=True)
